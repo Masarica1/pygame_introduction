@@ -1,4 +1,4 @@
-<h1>게임개발부서</h1>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=auto&height=200&section=header&text=게임 개발부&fontSize=90" />
 <hr>
 
 <h2>1차시: pygame의 기본 구성</h2>
@@ -47,6 +47,7 @@ import pygame
 running = True  # 게임이 종료될 때까지 True로 유지된다. 게임이 종료될 때 False로 값을 바꾸어 주면 된다.
 while running:  # 게임이 종료될 때까지 아래 코드를 계속 반복한다.
     ...
+    
     pygame.display.update()  # 현재 상태를 업데이트 한다. 그냥 무조건 붙이면 된다.
 ```
 
@@ -80,7 +81,7 @@ while running:
 
     clock.tick(60)  # 프레임 설정 (게임 루프 안에 넣어야 함)
 ```
-<p>코드 루프 안에 다음과 같은 코드를 넣으면, 1초에 game loop를 60번 실행한다.</p>
+<p>게임 루프 안에 다음과 같은 코드를 넣으면, 1초에 game loop를 60번 실행한다.</p>
 
 <h3>5. Surface, Rect 클래스</h3>
 <h4>5 - 1. Surface 객체</h4>
@@ -136,8 +137,33 @@ blit() 메서드에서 이 둘을 매개변수로 받는 것도 둘이 커플이
     </li>
 </ul>
 
+<h3>6. Rect 객체의 이동 제한</h3>
+<p>엔티티가 화면 밖을 나가는 불상사는 발생하면 안된다. 따라서 엔티티의 이동을 제한할 필요가 있다.</p>
 
+```python
+import pygame
 
+# window 객체 설정
+WINDOW_WIDTH = 1200
+WINDOW_HEIGHT = 900
+window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+
+# rect 객체 생성을 위한 surface 객체 생성
+surface = pygame.Surface((50, 50))
+
+# rect 객체 생성
+rect = surface.get_rect()
+
+# x축 방향 이동 제한
+if rect.right > WINDOW_WIDTH:  # 오른쪽 x좌표가 화면 가로 길이보다 길면
+    rect.right = WINDOW_WIDTH  # 오른쪽 x좌표를 화면 가로 길이로 맞춤
+    
+if rect.left < 0:  # 왼쪽 x 좌표가 음수이면
+    rect.left = 0  # 왼쪽 x 좌표를 0으로 맞춤
+```
+다음과 같이 엔티티가 가로 방향으로 밖으로 나가는 것을 방지할 수 있다.
+
+**`1차시 과제: WADS키로 상하좌우로 움직이는 게임을 만들어보자`**
 <hr>
 
 <h2>2차시: sprite 객체</h2>
