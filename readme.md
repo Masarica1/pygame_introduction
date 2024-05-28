@@ -1,4 +1,4 @@
-<img src="https://capsule-render.vercel.app/api?type=waving&color=auto&height=200&section=header&text=게임 개발부&fontSize=90" />
+# 게임 개발 부서
 <hr>
 
 <h2>1차시: pygame의 기본 구성</h2>
@@ -8,7 +8,7 @@
     <li>exit 이벤터 처리</li>
     <li>Clock 객체</li>
     <li>surface, rect 객체</li>
-    <li>rect 객체 이동 범위 제한</li>
+    <li>rect 객체 이동 및 이동 범위 제한</li>
 </ol>
 
 <h3>1. window 객체</h3>
@@ -35,7 +35,7 @@ window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 
 <h3>2. game loop</h3>
 <p>
-게임이 진행되는 동안 반복적으로 실행되는 코드 덩어리가 필요한데, 이를 코드 루프라고 한다.
+게임이 진행되는 동안 반복적으로 실행되는 코드 덩어리가 필요한데, 이를 게임 루프라고 한다.
 지오메트리로 예를 들면, Start를 누르고, 게임이 끝날 때까지, 캐릭터를 움직이고, 화면을 이동시키는 반복 작업이 필요하다.
 그리고 이것을 game loop라고 부른다. (정식용어는 아니기 때문에, 면접에서 쓰지는 말자)
 Pygame에서는 다음과 같이 프로그래밍 한다.
@@ -81,7 +81,7 @@ while running:
 
     clock.tick(60)  # 프레임 설정 (게임 루프 안에 넣어야 함)
 ```
-<p>게임 루프 안에 다음과 같은 코드를 넣으면, 1초에 game loop를 60번 실행한다.</p>
+<p>game loop 안에 다음과 같은 코드를 넣으면, 1초에 game loop를 60번 실행한다.</p>
 
 <h3>5. Surface, Rect 클래스</h3>
 <h4>5 - 1. Surface 객체</h4>
@@ -138,6 +138,29 @@ blit() 메서드에서 이 둘을 매개변수로 받는 것도 둘이 커플이
 </ul>
 
 <h3>6. Rect 객체의 이동 제한</h3>
+WASD 키를 이용해서 Rect 객체의 위치를 바꾸는 법은 다음과 같다.
+```python
+import pygame
+
+# window 객체 설정
+WINDOW_WIDTH = 1200
+WINDOW_HEIGHT = 900
+window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+
+# rect 객체 생성을 위한 surface 객체 생성
+surface = pygame.Surface((50, 50))
+
+# rect 객체 생성
+rect = surface.get_rect()
+
+# x축 방향 이동 제한
+keys = pygame.key.get_pressed()  # 현재 눌려있는 키들을 리스트로 반환
+if keys[pygame.K_a]:  # a 키가 눌려 있을 떄
+    rect.move_ip(-10, 0)  # x축 방향으로 -10 만큼 이동
+if keys[pygame.K_d]:  # d 키가 눌려 있으 때
+    rect.move_ip(10, 0)  # x축 방향으로 10만큼 이동
+```
+위의 Rect 객체 위치를 움직이는 코드는 반복해서 실행되어야 한다. 따라서 game loop 안에 존재해야 한다.
 <p>엔티티가 화면 밖을 나가는 불상사는 발생하면 안된다. 따라서 엔티티의 이동을 제한할 필요가 있다.</p>
 
 ```python
