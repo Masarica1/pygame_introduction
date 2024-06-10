@@ -198,4 +198,217 @@ if rect.left < 0:  # 왼쪽 x 좌표가 음수이면
     <li>시간 단위 이벤트 처리</li>
 </ol>
 
+### 1. sprite 객체
+Surface 객체와 Rect 객체는 한 몸이다. 그럼에도 우리는 Surface 객체와 Rect 객체를 따로 정의해줘야 한다.
+이것은 불편하다. 이 둘을 변수 1개로 묶어서 데리고 다닐 수 있으면 좋을 것 같다.
+그러한 의미에서 만들어진 것이 Sprite 객체이다.
+
+Sprite는 보통 Sprite Class를 상속받아 새로운 Class를 만들어 사용한다.
+Sprite 클래스를 상속받는 방법은 다음과 같다.
+```python
+import pygame
+
+class CustomClass(pygame.sprite.Sprite): # 상속을 받는 코드 1
+    def __init__(self):
+        super().__init__()  # 상속을 받는 코드 2
+```
+보이는 것처럼  "(pygame.sprite.Sprite)"와 "super().__init__()"를 무조건 넣어야 한다.
+넣지 않으면 상속이 되지 않는다. Customclass는 클래스의 이름으로, 마음대로 지정할 수 있다.
+
+Sprite 클래스를 상속받았다면 이제 Surface 객체와 Rect 객체를 Sprite 객체에 넣어줘야 할 것이다.
+넣는 방법은 다음과 같다.
+```python
+import pygame
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.Surface((100, 100))
+        # pygame.image.load()를 사용해도 당연히 된다.
+        
+        self.rect = self.image.get_rect()
+```
+클래스에서 변수를 저장할 때는 앞에 self를 붙여주어야 나중에 사용할 수 있다. 아니면 사용하지 못한다.
+추가로 surface 객체는 image라는 변수명으로 **무조건** 저장해야 한다. 다른건 안된다.
+
+클래스는 설계도이다. 그럼 위의 Player 클래스를 이용해 플레이어 Sprite를 만들어 보자.
+```python
+import pygame
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.Surface((100, 100))
+        self.rect = self.image.get_rect()
+
+        self.image.fill((255, 0, 0)) # surface 객체를 빨강으로 칠함
+
+player = Player()  # sprite 객체 player 선언
+
+player.image.fill((0, 255, 0))  # surface 객체를 초록으로 칠함
+player.rect.x += 1  # x좌표 1만큼 이동
+```
+Sprite 객체의 surface 객체와 rect 객체에 접근하는 방법은 위와 같다.
+
+Sprite 객체에는 update()라는 메서드가 존재한다.
+이 메서드에는 Sprite 객체의 움직임과 관련된 코드들이 들어가면 된다.
+밑의 코드는 player의 AD키 이동 관련 코드를 넣은 것이다.
+```python
+import pygame
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.Surface((100, 100))
+        self.rect = self.image.get_rect()
+
+        self.image.fill((255, 0, 0)) # surface 객체를 빨강으로 칠함
+
+    def update(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_a]:
+            self.rect.x -= 10
+        if keys[pygame.k_d]:
+            self.rect.x += 10
+```
+update() 메서드에 움직임과 관련된 코드를 넣으면,
+뒤에 나오는 group을 이용해 여러 Sprite 들의 update()를 한번에 실행시킬 수 있다.
+즉, 코드 한줄로 모든 엔티티가 움직이게 할 수 있다!
+
+### 2. Group 객체
+Group객체는 Sprite 객체들을 한데에 묶어 한번에 처리할 수 있도록 만들어진 객체이다.
+
+Sprite 객체는 클래스를 상속받아서 새로운 클래스를 만들어야 해 사용하기 매우 어려웠다.
+그에 비해 Group 객체를 사용하는 법은 매우 간단하다. 다음과 같이 Group 객체를 선언한다.
+```python
+import pygame
+
+# group 객체 생성
+group = pygame.sprite.Group()
+```
+당연하겠지만 Group 객체의 이름은 맘대로 정할 수 있다.
+
+Group 객체에 Sprite 객체를 추가/제거하는 법은 다음과 같다.
+```python
+import pygame
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.Surface((100, 100))
+        self.rect = self.image.get_rect()
+
+player_1 = Player()  # player_1: Sprite 객체 생성
+player_group = pygame.sprite.Group()  # Group 객체 생성
+
+# player_1을 player_group에 추가
+player_group.add(player_1)
+# player_1을 player_group에서 제거
+player_group.remove(player_1)
+```
+Group 객체 안에 있는 모든 Sprite 들을 한번에 update 하거나, 화면에 blit 할 수 있다.
+코드는 다음과 같다.
+```python
+import pygame
+
+window_w = 1200
+window_h = 900
+# window 객체 생성
+window = pygame.display.set_mode((window_w, window_h))
+
+player_group = pygame.sprite.Group()
+
+# player_group에 있는 모든 Sprite 업데이트
+player_group.update()
+# player_group에 있는 모든 Sprite를 window에 칠함
+player_group.draw(window)
+```
+
+### 3. Sprite 객체 충돌 처리
+#### 3-1 Sprite - Sprite 충돌
+두 Sprite 간의 충돌을 처리하는 rect 객체에 있는 colliderect 메서드를 이용한다.
+```python
+import pygame
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.Surface((50, 50))
+        self.rect = self.image.get_rect()
+
+player_1 = Player()
+player_2 = Player()
+
+# 충돌 처리 코드, 둘은 같은 결과이다.
+print(player_1.rect.colliderect(player_2.rect))
+print(player_2.rect.colliderect(player_1.rect))
+```
+colliderect() 메서드는 매개변수로 다른 Rect 객체를 받고, 충돌 했으면 True 아니면 False를 출력한다.
+
+#### 3-2 Sprite Group간 충돌
+밀려오는 적 100명이 있어서 그들에 대해 전부 충돌 처리를 해야한다고 해보자.
+이때는 적 100명을 한 그룹에 넣은 후, 처리한다.
+```python
+import pygame
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.Surface((50, 50))
+        self.rect = self.image.get_rect()
+
+player = Player()
+enemy_group = pygame.sprite.Group()
+
+# 충돌 처리 코드
+print(pygame.sprite.spritecollide(player, enemy_group, True))
+```
+pygame.sprite 모듈에는 spritecollide라는 함수가 있다.
+이 함수는 매개변수로 sprite 객체, group 객체를 받고 bool 형의 dokill 매개변수도 받는다.
+dokill이 True이면 group내에서 충돌한 객체들을 제거해준다.
+해당 함수는 충돌한 group 내의 객체들을 모아 list로 출력한다.
+따라서 print()를 하면 충돌한 enemy들이 list로 출력될 것이다.
+
+### 4. 시간 단위 이벤트 처리
+x초 마다 실행시키고 싶은 코드가 있다고 하자. 다음과 같이 구현한다.
+```python
+import pygame
+
+clock = pygame.time.Clock()
+# custom event 만들기
+event_1 = pygame.USEREVENT + 1  # +1은 첫번째 사용자 설정 이벤트를 의미
+
+# event_1 이벤트를 1000ms(= 1초)마다 활성화
+pygame.time.set_timer(event_1, 1000)
+```
+해당 이벤트가 활성화 되어 있는지 확인하는 방법은 다음과 같다.
+```python
+import pygame
+
+clock = pygame.time.Clock()
+# custom event 만들기
+event_1 = pygame.USEREVENT + 1  # +1은 첫번째 사용자 설정 이벤트를 의미
+
+# event_1 이벤트를 1000ms(= 1초)마다 활성화
+pygame.time.set_timer(event_1, 1000)
+
+# game loop
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        # event_1 활성화 확인
+        if event.type == event_1:
+            # 대충 event_1이 활성화 됐을 때 실행시킬 코드
+            ...
+```
+#### 2차시 과제 모음
+``1st:player 클래스를 만들고, 움직이는 기능과 이동 제한 기능을 구현하자 (update 이용)``
+
+``2nd: 하늘에서 떨어지다 바닥에 닿으면 초기화 되는 enemy 객체를 만들자.``
+
+``3rd: enemy 객체를 몇개 담고 있는 Group 객체를 만들자.``
+
+``4th: enemy_group과 player가 충돌하면 게임이 종료되게 하자.``
 <hr>
